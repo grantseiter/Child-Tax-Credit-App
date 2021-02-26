@@ -33,6 +33,9 @@ poverty_df = pd.read_csv(poverty_output_path)
 dists_output_path = os.path.join(CURR_PATH, "data/dist_estimates.csv")
 dists_df = pd.read_csv(dists_output_path)
 
+params_output_path = os.path.join(CURR_PATH, "data/params_data.csv")
+params_df = pd.read_csv(params_output_path)
+
 # primary content functions
 
 def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
@@ -163,6 +166,47 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
                 ]
         return figure_data_reform
 
+    def params_data_base(base, refund, ctc_c, u6_bonus, ps):
+        if base == "cl":
+            params_data_base= params_df.loc[
+                    (params_df["type"] == "CL")
+                ]
+        elif base == "biden":
+            params_data_base= params_df.loc[
+                    (params_df["type"] == "Biden")
+                ]
+        elif base == "wnm":
+            params_data_base= params_df.loc[
+                    (params_df["type"] == "WNM")
+                ]
+        elif base == "fsa":
+            params_data_base= params_df.loc[
+                    (params_df["type"] == "Romney")
+                ]
+        return params_data_base
+
+    def params_data_reform(reform, refund, ctc_c, u6_bonus, ps):
+        if reform == "biden":
+            params_data_reform= params_df.loc[
+                    (params_df["type"] == "Biden")
+                ]
+        elif reform == "wnm":
+            params_data_reform= params_df.loc[
+                    (params_df["type"] == "WNM")
+                ]
+        elif reform == "fsa":
+            params_data_reform= params_df.loc[
+                    (params_df["type"] == "Romney")
+                ]
+        elif reform == "custom":
+            params_data_reform= params_df.loc[
+                    (params_df["type"] == refund)
+                    & (params_df["ctc_c"] == ctc_c)
+                    & (params_df["u6_bonus"] == u6_bonus)
+                    & (params_df["ps"] == ps)
+                ]    
+        return params_data_reform
+
     def make_figure(x_base,y_base,x_reform,y_reform,title,axtitle, yaxis_range):
         """
  		make primary figures
@@ -229,10 +273,11 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
 
         fig = go.Figure(data=[go.Table(
         	columnorder = [1,2,3,4],
-  			columnwidth = [52,16,16,16],
+  			columnwidth = [60,14,14,12],
             header=dict(values=['', 'Baseline Policy','Reform Policy', 'Difference'], 
             fill_color='#008CCC',
-            font=dict(color='white', size=14)),
+            font=dict(color='white', size=14),
+            height=30,),
             cells=dict(values=[['Annual Value of All Child Tax Benefits (2021 $)',
                                 'Annual Value of Child Tax Credit (2021 $)',
                                 'Average Total Benefit - All Child Tax Benefits ($)',
@@ -244,13 +289,68 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
             [reform_all, reform_ctc, reform_mean, reform_pcati, reform_metr, reform_spm_all, reform_spm_u18],
             [diff_all, diff_ctc, diff_mean, diff_pcati, diff_metr, diff_spm_all, diff_spm_u18]],
             fill_color='#F9F9F9',
-            font=dict(color='#414141', size=12),
+            font=dict(color='#414141', size=14),
+            height=30,
             align = ['left','center']))
                      ])
 
         fig.update_layout(
             title={
             'text': 'Comparing Selected Baseline and Reform Policies — All Child Tax Benefits',
+            'y':0.9,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'},
+            font=dict(color='#414141'))
+
+    elif tabs == "params_tab":
+
+        base_params = params_data_base(base, refund, ctc_c, u6_bonus, ps)
+        base_max_c = base_params['max_c']
+        base_bon6 = base_params['bon6']
+        base_max_r = base_params['max_r']
+        base_q_age = base_params['q_age']
+        base_thresh = base_params['thresh']
+        base_pir = base_params['pir']
+        base_pos = base_params['pos']
+        base_por = base_params['por']
+
+        reform_params = params_data_reform(reform, refund, ctc_c, u6_bonus, ps)
+        reform_max_c = reform_params['max_c']
+        reform_bon6 = reform_params['bon6']
+        reform_max_r = reform_params['max_r']
+        reform_q_age = reform_params['q_age']
+        reform_thresh = reform_params['thresh']
+        reform_pir = reform_params['pir']
+        reform_pos = reform_params['pos']
+        reform_por = reform_params['por']
+
+        fig = go.Figure(data=[go.Table(
+            columnorder = [1,2,3],
+            columnwidth = [40,30,30],
+            header=dict(values=['', 'Baseline Policy','Reform Policy'], 
+            fill_color='#008CCC',
+            font=dict(color='white', size=14),
+            height=30,),
+            cells=dict(values=[['Maximum Credit Amount',
+                                'Bonus for Children Under 6',
+                                'Maximum Refundable Amount',
+                                'Qualifying Ages',
+                                'Income Threshold for Refundable Credit Eligibility',
+                                'Phase-In Rate',
+                                'Income Threshold for Phaseout of Credit',
+                                'Phaseout Rate'],
+            [base_max_c, base_bon6, base_max_r, base_q_age, base_thresh, base_pir, base_pos, base_por],
+            [reform_max_c, reform_bon6, reform_max_r, reform_q_age, reform_thresh, reform_pir, reform_pos, reform_por]],
+            fill_color='#F9F9F9',
+            font=dict(color='#414141', size=13),
+            height=26,
+            align = ['left','center']))
+                     ])
+
+        fig.update_layout(
+            title={
+            'text': 'Values of Selected Policy Parameters',
             'y':0.9,
             'x':0.5,
             'xanchor': 'center',
@@ -314,7 +414,7 @@ app.layout = html.Div(
               ]),
         dcc.Markdown(
             """
-            ## The Tax Benefits Of Parenthood Interactive Dashboard
+            ## Design Your Child Tax Credit Reform
             *Modeling and design by <a href="https://github.com/grantseiter/" children="Grant M. Seiter" style="color:#4f5866;text-decoration:none" target="blank" />*
             """,
             style={"max-width": "1000", "padding-bottom": "10px", "color": "#4f5866"},
@@ -322,14 +422,17 @@ app.layout = html.Div(
         ),
         dcc.Markdown(
             """
-			This dashboard allows users to investigate various reforms to the child tax credit in the context of all tax 
-			benefits currently afforded to filers with children (the child tax credit (CTC), the earned income tax credit, 
-			the head-of-household filing status, and the child and dependent care tax credit). Users can select a baseline 
-			policy — current law, President Joe Biden’s American Rescue Plan, recent legislation adopted by the House Committee on Ways 
-			and Means, or Sen. Mitt Romney’s (R-UT) proposed Family Security Act — and a reform policy to analyze. In addition 
-			to the three proposals already mentioned, users can specify their own child tax credit reform by selecting the 
-			"Custom CTC Reform" option and adjusting the four parameters in grey — refundability, the maximum credit value, 
-			the dollar bonus for children under six, and the threshold for which the credit begins phasing out.
+            This interactive dashboard allows users to investigate the impact of various reforms to the child tax credit (CTC). 
+            Users can compare side-by-side any two of the following: current policy CTC, President Biden’s American Rescue Plan, 
+            reconciliation legislation adopted by the House Committee on Ways and Means, Sen. Mitt Romney’s (R-UT) proposed Family 
+            Security Act or a custom, user-designed alternative reform policy. 
+            
+            **How it works:** Simply select a baseline scenario and a reform scenario from the dropdown boxes below. If you select 
+            “Custom CTC Reform,” you can customize four policy parameters: maximum credit amount, additional credit amount for children 
+            under six, refundability of the credit, and the credit’s phase criteria.     
+            
+            The model reflects the impacts only on tax filers with children and considers the impact of other tax provisions for children: 
+            the earned income tax credit, the head-of-household filing status, and the child and dependent care tax credit.
             """,
             style={"max-width": "1000px","text-align":"justify"},
             dangerously_allow_html=True,
@@ -341,7 +444,7 @@ app.layout = html.Div(
                 dcc.Dropdown(
                     id="base",
                     options=[
-                        {"label": "Current Law", "value": "cl"},
+                        {"label": "Current Policy", "value": "cl"},
                         {"label": "Biden Proposal", "value": "biden"},
                         {"label": "Ways & Means Proposal", "value": "wnm"},
                         {"label": "Family Security Act", "value": "fsa"},
@@ -371,7 +474,7 @@ app.layout = html.Div(
             style={"width": "450px", "display": "inline-block", "padding-left": "25px","padding-right": "25px","padding-top": "5px","padding-bottom": "20px"},
         ), 
         html.Div(
-            [ # new line
+            [ # force new line
             ],
             style={'whiteSpace': 'pre-wrap'},
         ),
@@ -379,22 +482,7 @@ app.layout = html.Div(
         children= [
         html.Div(
             [
-                # custom refundability dropdown
-                html.Label("Refundability"),
-                dcc.Dropdown(
-                    id="refund",
-                    options=[
-                        {"label": "Current Law", "value": "Nonref"},
-                        {"label": "Fully Refundable", "value": "Refund"},
-                    ],
-                    value= "Nonref",
-                    clearable=False
-                ),
-            ],
-            style={"width": "200px", "display": "inline-block","padding-left": "25px","padding-right": "25px","padding-top": "5px","padding-bottom": "20px","background-color": "#F9F9F9"},
-        ),
-        html.Div(
-            [   # custom max credit value dropdown
+                 # custom max credit value dropdown
                 html.Label("Maximum Credit Value"),
                 dcc.Dropdown(
                     id="ctc_c",
@@ -427,12 +515,28 @@ app.layout = html.Div(
             style={"width": "200px","display": "inline-block","padding-left": "25px","padding-right": "25px","padding-top": "5px","padding-bottom": "20px","background-color": "#F9F9F9"},
         ),
         html.Div(
+            [   # custom refundability dropdown
+                html.Label("Refundability"),
+                dcc.Dropdown(
+                    id="refund",
+                    options=[
+                        {"label": "Current Policy", "value": "Nonref"},
+                        {"label": "Fully Refundable", "value": "Refund"},
+                    ],
+                    value= "Nonref",
+                    clearable=False
+                ),
+            ],
+            style={"width": "200px", "display": "inline-block","padding-left": "25px","padding-right": "25px","padding-top": "5px","padding-bottom": "20px","background-color": "#F9F9F9"},
+        ),
+        html.Div(
             [   # custom phaseout start dropdown
                 html.Label("Phaseout Start"),
                 dcc.Dropdown(
                     id="ps",
                     options=[
-                        {"label": "200K Single / 400K MFJ", "value": "CL"},
+                        {"label": "Pre-TCJA Policy", "value": "PT"},
+                        {"label": "Current Policy", "value": "CL"},
                         {"label": "Eliminate Phaseout", "value": "NO"},
                     ],
                     value="CL",
@@ -449,10 +553,10 @@ app.layout = html.Div(
                     value="summary_tab",
                     children=[
                         dcc.Tab(label="Table: Summary Estimates", value="summary_tab", selected_style=tab_selected_style),
+                        dcc.Tab(label="Table: Values of Selected Policy Parameters", value="params_tab", selected_style=tab_selected_style),
                         dcc.Tab(label="Graph: Average Value of All Child Tax Benefits", value="mean_tab", selected_style=tab_selected_style),
                         dcc.Tab(label="Graph: Percent Change in After-Tax Income", value="pcati_tab", selected_style=tab_selected_style),
                         dcc.Tab(label="Graph: Effective Marginal Tax Rate on Labor", value="emtr_tab", selected_style=tab_selected_style),
-                        
                     ],
                 )
             ],
@@ -461,16 +565,18 @@ app.layout = html.Div(
         html.Div([dcc.Graph(id="content_tab")], style={"max-width": "1000px"}),
         dcc.Markdown(
             """
-            **Note:** This dashboard accompanies <a href="https://www.aei.org/research-products/report/the-tax-benefits-of-parenthood-a-history-and-analysis-of-current-proposals/"
+            **Note:** This dashboard is an extension of research presented in 
+            <a href="https://www.aei.org/research-products/report/the-tax-benefits-of-parenthood-a-history-and-analysis-of-current-proposals/"
             children="The Tax Benefits of Parenthood: A History and Analysis of
             Current Proposals" style="color:#008CCC" target="blank"/> (Brill, Pomerleau, and Seiter 2021). 
+            Details about the policy parameters for the baseline policies are available in that paper.
             Data for this project are generated using the open-source
             <a href="https://github.com/PSLmodels/Tax-Calculator#README" children="Tax-Calculator" style="color:#008CCC" target="blank"/> project. 
             The code that modifies the underlying models to produce these estimates
-            can be found <a href="https://github.com/grantseiter/Tax-Benefits-Of-Parenthood" children="here" style="color:#008CCC" target="blank"/>
-            and <a href="https://github.com/grantseiter/Child-Tax-Credit-App" children="here" style="color:#008CCC" target="blank" />.
+            can be found <a href="https://github.com/grantseiter/Tax-Benefits-Of-Parenthood" children="here" style="color:#008CCC" target="blank"/>.
             The code that powers this data visualization can be found
             <a href="https://github.com/grantseiter/Child-Tax-Credit-App" children="here" style="color:#008CCC" target="blank" />.
+            Feedback or questions? Contact us <a href="mailto:Grant.Seiter@AEI.org" children="here" style="color:#008CCC" />.
             """,
             style={"max-width": "1000px","text-align":"justify"},
             dangerously_allow_html=True,
