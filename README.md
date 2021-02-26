@@ -11,7 +11,15 @@ This application accompanies:
 “[The Tax Benefits of Parenthood: A History and Analysis of Current Proposals](https://www.aei.org/research-products/report/the-tax-benefits-of-parenthood-a-history-and-analysis-of-current-proposals/),” Alex Brill, Kyle Pomerleau, and Grant M. Seiter, AEI Report, American Enterprise Institute (February 23, 2021).
 
 Data for this project are generated using the open-source [Tax-Calculator](https://github.com/PSLmodels/Tax-Calculator) project. The code that modifies the underlying models to produce these estimates can be found [here](https://github.com/grantseiter/Tax-Benefits-Of-Parenthood). The code that powers this data visualization can be found [here](https://github.com/grantseiter/Child-Tax-Credit-App).
-            
+
+To run locally:
+```
+git clone https://github.com/grantseiter/Child-Tax-Credit-App
+cd Child-Tax-Credit-App
+conda env create
+conda activate widget-dev
+python app.py
+```          
 ### Languages
 *Python*
 
