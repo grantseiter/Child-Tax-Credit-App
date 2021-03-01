@@ -207,7 +207,7 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
                 ]    
         return params_data_reform
 
-    def make_figure(x_base,y_base,x_reform,y_reform,title,axtitle, yaxis_range):
+    def make_figure(x_base,y_base,x_reform,y_reform,title,axtitle, hoverchoice, yaxis_range):
         """
  		make primary figures
         """
@@ -217,12 +217,14 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
             y=y_base,
             name='Baseline Policy',
             marker_color='#008CCC',
+            hovertemplate = hoverchoice,
         ))
         fig.add_trace(go.Bar(
             x=x_reform,
             y=y_reform,
             name='Reform Policy',
-            marker_color='#414141'
+            marker_color='#414141',
+            hovertemplate = hoverchoice,
         ))
         fig.update_layout(
             title={
@@ -360,6 +362,7 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
     elif tabs == "mean_tab":
         title = 'Average Value of All Child Tax Benefits by Income Decile, Households with Children'
         axtitle = '2021 Dollars ($)'
+        hoverchoice = '$%{y}'
         yaxis_range = [0,10000]
         x_base = figure_data_base(base, refund, ctc_c, u6_bonus, ps)
         x_base = x_base['decile']
@@ -369,10 +372,11 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
         x_reform = x_reform['decile']
         y_reform = figure_data_reform(reform, refund, ctc_c, u6_bonus, ps)
         y_reform = y_reform['mean']
-        fig = make_figure(x_base,y_base,x_reform,y_reform,title,axtitle,yaxis_range)
+        fig = make_figure(x_base,y_base,x_reform,y_reform,title,axtitle,hoverchoice,yaxis_range)
     elif tabs == "pcati_tab":
         title = 'Distributional Impact of All Child Tax Benefits, Households with Children'
         axtitle = 'Percent Change in After-Tax Income (%)'
+        hoverchoice = '%{y}%'
         yaxis_range = [0,140]
         x_base = figure_data_base(base, refund, ctc_c, u6_bonus, ps)
         x_base = x_base['decile']
@@ -382,10 +386,11 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
         x_reform = x_reform['decile']
         y_reform = figure_data_reform(reform, refund, ctc_c, u6_bonus, ps)
         y_reform = y_reform['pc_aftertaxinc']
-        fig = make_figure(x_base,y_base,x_reform,y_reform,title,axtitle,yaxis_range)
+        fig = make_figure(x_base,y_base,x_reform,y_reform,title,axtitle,hoverchoice,yaxis_range)
     elif tabs == "emtr_tab":
         title = 'Person Weighted Effective Marginal Tax Rate (EMTR) on Labor Income, Households with Children'
         axtitle = 'EMTR (%)'
+        hoverchoice = '%{y}%'
         yaxis_range = [-30,30]
         x_base = figure_data_base(base, refund, ctc_c, u6_bonus, ps)
         x_base = x_base['decile']
@@ -395,7 +400,7 @@ def make_content(base, reform, refund, ctc_c, u6_bonus, ps, tabs):
         x_reform = x_reform['decile']
         y_reform = figure_data_reform(reform, refund, ctc_c, u6_bonus, ps)
         y_reform = y_reform['metr_reform']
-        fig = make_figure(x_base,y_base,x_reform,y_reform,title,axtitle,yaxis_range)
+        fig = make_figure(x_base,y_base,x_reform,y_reform,title,axtitle,hoverchoice,yaxis_range)
     
     return fig
 
@@ -414,7 +419,7 @@ app.layout = html.Div(
               ]),
         dcc.Markdown(
             """
-            ## Design Your Child Tax Credit Reform
+            ## Design Your Own Child Tax Credit Reform
             *Modeling and design by <a href="https://github.com/grantseiter/" children="Grant M. Seiter" style="color:#4f5866;text-decoration:none" target="blank" />*
             """,
             style={"max-width": "1000", "padding-bottom": "10px", "color": "#4f5866"},
