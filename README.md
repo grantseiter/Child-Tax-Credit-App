@@ -3,6 +3,8 @@
 
 Project GitHub Repo: https://github.com/grantseiter/Child-Tax-Credit-App
 
+Deployed Application: https://compute.studio/AEIEconomics/CTC-App/viz/
+
 ### Note:
 This repository contains a Dash application that allows users to investigate various reforms to the child tax credit in the context of all tax benefits currently afforded to filers with children. Users can select a baseline policy — current law, President Joe Biden’s American Rescue Plan, recent legislation adopted by the House Committee on Ways and Means, or Sen. Mitt Romney’s (R-UT) proposed Family Security Act — and a reform policy to analyze. In addition to the three proposals already mentioned, users can specify their own child tax credit reform by selecting the "Custom CTC Reform" option and adjusting four CTC parameters — refundability, the maximum credit value, the dollar bonus for children under six, and the threshold for which the credit begins phasing out.
 
